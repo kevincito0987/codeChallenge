@@ -1,0 +1,45 @@
+{
+  "name": "FullStack JS - Twitter Clone",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "firsttris.vscode-jest-runner",
+        "vivaxy.vscode-conventional-commits",
+        "postman.postman-for-vscode",
+        "prisma.prisma"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "files.exclude": {
+          "**/node_modules": true,
+          "**/dist": true,
+          "**/.next": true
+        }
+      }
+    }
+  },
+  "forwardPorts": [
+    3000, // Frontend (Next.js)
+    3001, // Backend (NestJS API)
+    5432  // PostgreSQL Database
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "Frontend (Next.js)"
+    },
+    "3001": {
+      "label": "Backend (NestJS API)"
+    },
+    "5432": {
+      "label": "Database (PostgreSQL)"
+    }
+  },
+  "remoteUser": "root"
+}

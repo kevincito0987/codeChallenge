@@ -1,0 +1,31 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: twitter-clone-dev-app
+    volumes:
+      - .:/workspaces/codeChallenge:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /workspaces/${localWorkspaceFolderBasename}
+    command: sleep infinity
+    environment:
+      - TZ=UTC
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    container_name: twitter-clone-postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: twitter_clone_db
+      POSTGRES_USER: twitter_dev_user
+      POSTGRES_PASSWORD: twitter_dev_password
+    volumes:
+      - pgdata-twitter-clone:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  pgdata-twitter-clone:
