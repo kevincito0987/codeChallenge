@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/javascript-node:20-bullseye
+FROM mcr.microsoft.com/devcontainers/javascript-node:22-bookworm
 
 USER root
 
@@ -20,7 +20,7 @@ RUN if id -u vscode >/dev/null 2>&1; then \
         useradd -m -s /bin/bash -G docker vscode; \
     fi
 
-# Instalación global de pnpm v9
+# Instalación global de pnpm v9 (Ahora nativa y estable sobre Node 22)
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 
 # Directorio de trabajo
