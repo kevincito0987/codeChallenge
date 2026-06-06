@@ -5,7 +5,7 @@ services:
       dockerfile: .devcontainer/Dockerfile
     container_name: twitter-clone-dev-app
     volumes:
-      - .:/workspaces/codeChallenge:cached
+      - .:/workspaces/codeChallenge:cached  
       - /var/run/docker.sock:/var/run/docker.sock
     working_dir: /workspaces/${localWorkspaceFolderBasename}
     command: sleep infinity

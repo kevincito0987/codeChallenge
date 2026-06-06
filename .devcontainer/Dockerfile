@@ -20,8 +20,14 @@ RUN if id -u vscode >/dev/null 2>&1; then \
         useradd -m -s /bin/bash -G docker vscode; \
     fi
 
-# Instalación global de pnpm v9 (Ahora nativa y estable sobre Node 22)
+# Instalación global de pnpm v9 (Nativa y estable sobre Node 22)
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+
+# 🔒 [BLOQUEO SEGURIDAD]: Desactivar npm y npx tradicionales para evitar ejecuciones accidentales o maliciosas
+RUN rm -f /usr/local/bin/npm /usr/local/bin/npx \
+    && echo '#!/bin/bash\necho "❌ El uso de npm/npx está prohibido en este contenedor por seguridad. Usa pnpm o pnpm dlx."' > /usr/local/bin/npm \
+    && echo '#!/bin/bash\necho "❌ El uso de npm/npx está prohibido en este contenedor por seguridad. Usa pnpm o pnpm dlx."' > /usr/local/bin/npx \
+    && chmod +x /usr/local/bin/npm /usr/local/bin/npx
 
 # Directorio de trabajo
 WORKDIR /workspaces
@@ -30,3 +36,6 @@ WORKDIR /workspaces
 RUN chown -R vscode:vscode /workspaces
 
 USER vscode
+
+# 🔒 Configurar pnpm para que ignore scripts de ciclo de vida maliciosos por defecto al instalar paquetes externos
+RUN pnpm config set ignore-scripts true

@@ -1,13 +1,102 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
-generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+// 👤 1. Entidad: users
+model User {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username      String   @unique @db.VarChar(50)
+  email         String   @unique @db.VarChar(255)
+  passwordHash  String   @map("password_hash") @db.VarChar(255)
+  bio           String?  @db.Text
+  avatarUrl     String?  @map("avatar_url") @db.Text
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp()
+
+  tweets        Tweet[]
+  likes         Like[]
+  followers     Follow[] @relation("UserFollowers")
+  following     Follow[] @relation("UserFollowing")
+
+  notificationsSent     Notification[] @relation("NotificationNotifier")
+  notificationsReceived Notification[] @relation("NotificationReceiver")
+
+  @@map("users")
+}
+
+// 🐦 2. Entidad: tweets
+model Tweet {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  content   String   @db.VarChar(280)
+  parentId  String?  @map("parent_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent    Tweet?       @relation("TweetReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Tweet[]      @relation("TweetReplies")
+  likes     Like[]
+  images    TweetImage[]
+
+  @@index([createdAt])
+  @@map("tweets")
+}
+
+// 👥 3. Entidad Intermedia: follows (4FN - Grafo Social)
+model Follow {
+  followerId  String   @map("follower_id") @db.Uuid
+  followingId String   @map("following_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@map("follows")
+}
+
+// ❤️ 4. Entidad Intermedia: likes (4FN - Interacciones)
+model Like {
+  userId    String   @map("user_id") @db.Uuid
+  tweetId   String   @map("tweet_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tweet     Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+
+  @@id([userId, tweetId])
+  @@map("likes")
+}
+
+// 🖼️ 5. Entidad: tweet_images
+model TweetImage {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tweetId   String   @map("tweet_id") @db.Uuid
+  imageUrl  String   @map("image_url") @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  tweet     Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+
+  @@map("tweet_images")
+}
+
+// 🔔 6. Entidad: notifications
+model Notification {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  notifierId String   @map("notifier_id") @db.Uuid
+  receiverId String   @map("receiver_id") @db.Uuid
+  type       String   @db.VarChar(20)
+  entityId   String?  @map("entity_id") @db.Uuid
+  isRead     Int      @default(0) @map("is_read") @db.Integer
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  notifier   User     @relation("NotificationNotifier", fields: [notifierId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("NotificationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
 }
