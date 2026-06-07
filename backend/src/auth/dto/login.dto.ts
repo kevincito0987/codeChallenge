@@ -1,10 +1,25 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsNotEmpty } from 'class-validator';
+
+// 🟢 IMPORTAMOS EL DECORADOR DE SWAGGER
+import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginDto {
-  @IsEmail({}, { message: 'El correo electrónico no es válido' })
-  email!: string;
+  @ApiProperty({
+    description: 'Correo electrónico registrado del usuario en el sistema',
+    example: 'medico.perez@hospital.com',
+    format: 'email',
+  })
+  @IsEmail({}, { message: 'El formato del correo electrónico no es válido' })
+  @IsNotEmpty({ message: 'El correo electrónico es obligatorio' })
+  email: string;
 
-  @IsString()
-  @MinLength(6, { message: 'La contraseña es requerida' })
-  password!: string;
+  @ApiProperty({
+    description: 'Contraseña de seguridad para acceder a la cuenta',
+    example: 'SecurePass123*',
+    minLength: 6,
+  })
+  @IsString({ message: 'La contraseña debe ser una cadena de texto' })
+  @IsNotEmpty({ message: 'La contraseña es obligatoria' })
+  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
+  password: string;
 }

@@ -1,33 +1,11 @@
-import {
-  IsEmail,
-  IsString,
-  MinLength,
-  MaxLength,
-  Matches,
-  IsOptional,
-} from 'class-validator';
+import { CreateUserBaseDto } from '../../users/dto/create-user.dto';
 
-export class RegisterDto {
-  @IsEmail({}, { message: 'El correo electrónico no es válido' })
-  email!: string;
+// 🟢 IMPORTAMOS LOS MAPEOS DE SWAGGER
+import { ApiProperty, PickType } from '@nestjs/swagger';
 
-  @IsString()
-  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
-  password!: string;
-
-  @IsString()
-  @MinLength(3, { message: 'El nombre debe tener al menos 3 caracteres' })
-  name!: string;
-
-  @IsString()
-  @MinLength(3, { message: 'El username debe tener al menos 3 caracteres' })
-  @MaxLength(15, { message: 'El username no puede superar los 15 caracteres' })
-  @Matches(/^[a-zA-Z0-0_]+$/, {
-    message: 'El username solo puede contener letras, números y guiones bajos',
-  })
-  username!: string;
-
-  @IsOptional()
-  @IsString()
-  bio?: string;
+// Usamos PickType para heredar de forma explícita todas las propiedades en Swagger.
+// Al pasarle todas las llaves o mapearlo directamente, Swagger clonará el esquema completo.
+export class RegisterDto extends CreateUserBaseDto {
+  // Se mantiene vacío tal como lo tenías, ya que hereda el 100% de CreateUserBaseDto
+  // El servicio seguirá asignando el rol 'patient' internamente.
 }

@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-# Configuración de Docker Compose V2
-RUN curl -SL https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose \
+# 🚀 ACTUALIZADO: Configuración de Docker Compose V2 a su última versión estable (v2.32.4)
+RUN curl -SL https://github.com/docker/compose/releases/download/v2.32.4/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose \
     && chmod +x /usr/local/bin/docker-compose
 
 # Agregar usuario vscode al grupo docker para intercomunicación de sockets
@@ -20,8 +20,8 @@ RUN if id -u vscode >/dev/null 2>&1; then \
         useradd -m -s /bin/bash -G docker vscode; \
     fi
 
-# Instalación global de pnpm v9 (Nativa y estable sobre Node 22)
-RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+# 🚀 ACTUALIZADO: Corepack listo con soporte nativo para la última versión estable de pnpm v9 (v9.15.4)
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 # 🔒 [BLOQUEO SEGURIDAD]: Desactivar npm y npx tradicionales para evitar ejecuciones accidentales o maliciosas
 RUN rm -f /usr/local/bin/npm /usr/local/bin/npx \

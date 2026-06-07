@@ -1,58 +1,52 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "./generated"
+  previewFeatures = ["driverAdapters"]
+}
+
 datasource db {
   provider = "postgresql"
 }
 
-generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
-}
-
-// 👤 1. Entidad: users
 model User {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  username      String   @unique @db.VarChar(50)
-  email         String   @unique @db.VarChar(255)
-  passwordHash  String   @map("password_hash") @db.VarChar(255)
-  bio           String?  @db.Text
-  avatarUrl     String?  @map("avatar_url") @db.Text
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp()
-  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp()
-
-  tweets        Tweet[]
-  likes         Like[]
-  followers     Follow[] @relation("UserFollowers")
-  following     Follow[] @relation("UserFollowing")
-
+  id                    String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username              String         @unique @db.VarChar(50)
+  email                 String         @unique @db.VarChar(255)
+  passwordHash          String         @map("password_hash") @db.VarChar(255)
+  bio                   String?
+  avatarUrl             String?        @map("avatar_url")
+  createdAt             DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt             DateTime       @updatedAt @map("updated_at") @db.Timestamp(6)
+  followers             Follow[]       @relation("UserFollowers")
+  following             Follow[]       @relation("UserFollowing")
+  likes                 Like[]
   notificationsSent     Notification[] @relation("NotificationNotifier")
   notificationsReceived Notification[] @relation("NotificationReceiver")
+  tweets                Tweet[]
 
   @@map("users")
 }
 
-// 🐦 2. Entidad: tweets
 model Tweet {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  content   String   @db.VarChar(280)
-  parentId  String?  @map("parent_id") @db.Uuid
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
-
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent    Tweet?       @relation("TweetReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   Tweet[]      @relation("TweetReplies")
+  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String       @map("user_id") @db.Uuid
+  content   String       @db.VarChar(280)
+  parentId  String?      @map("parent_id") @db.Uuid
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
   likes     Like[]
   images    TweetImage[]
+  parent    Tweet?       @relation("TweetReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Tweet[]      @relation("TweetReplies")
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([createdAt])
   @@map("tweets")
 }
 
-// 👥 3. Entidad Intermedia: follows (4FN - Grafo Social)
 model Follow {
   followerId  String   @map("follower_id") @db.Uuid
   followingId String   @map("following_id") @db.Uuid
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
-
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
   following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
 
@@ -60,43 +54,42 @@ model Follow {
   @@map("follows")
 }
 
-// ❤️ 4. Entidad Intermedia: likes (4FN - Interacciones)
 model Like {
   userId    String   @map("user_id") @db.Uuid
   tweetId   String   @map("tweet_id") @db.Uuid
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
-
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   tweet     Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, tweetId])
   @@map("likes")
 }
 
-// 🖼️ 5. Entidad: tweet_images
 model TweetImage {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   tweetId   String   @map("tweet_id") @db.Uuid
-  imageUrl  String   @map("image_url") @db.Text
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
-
+  imageUrl  String   @map("image_url")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   tweet     Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
 
   @@map("tweet_images")
 }
 
-// 🔔 6. Entidad: notifications
 model Notification {
   id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   notifierId String   @map("notifier_id") @db.Uuid
   receiverId String   @map("receiver_id") @db.Uuid
   type       String   @db.VarChar(20)
   entityId   String?  @map("entity_id") @db.Uuid
-  isRead     Int      @default(0) @map("is_read") @db.Integer
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp()
-
+  isRead     Int      @default(0) @map("is_read")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   notifier   User     @relation("NotificationNotifier", fields: [notifierId], references: [id], onDelete: Cascade)
   receiver   User     @relation("NotificationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+enum Role {
+  admin
+  user
 }
