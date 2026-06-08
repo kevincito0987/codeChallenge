@@ -44,7 +44,14 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Perfil retornado con éxito.' })
   @ApiResponse({ status: 401, description: 'Token ausente o inválido.' })
   async getMe(@Req() req: any) {
-    return this.usersService.findOne(req.user.id);
+    // 1. Buscamos el usuario en la base de datos (ya viene sin passwordHash gracias al select del servicio)
+    const user = await this.usersService.findOne(req.user.id);
+
+    // 2. Retornamos el perfil inyectando directamente el rol desde el token JWT
+    return {
+      ...user,
+      role: req.user.role || 'USER',
+    };
   }
 
   @Get()

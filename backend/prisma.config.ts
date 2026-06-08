@@ -4,6 +4,8 @@ export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: {
     path: 'prisma/migrations',
+    // 🟢 Agregamos el comando nativo para ejecutar el seeder con ts-node
+    seed: 'tsx prisma/seed.ts',
   },
   datasource: {
     // Si process.env no viene cargado por el CLI, le inyectamos la cadena directa de Docker

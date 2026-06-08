@@ -8,6 +8,14 @@ datasource db {
   provider = "postgresql"
 }
 
+model Role {
+  id    String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name  String @unique @db.VarChar(20) // "admin" o "user"
+  users User[]
+
+  @@map("roles")
+}
+
 model User {
   id                    String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   username              String         @unique @db.VarChar(50)
@@ -15,8 +23,11 @@ model User {
   passwordHash          String         @map("password_hash") @db.VarChar(255)
   bio                   String?
   avatarUrl             String?        @map("avatar_url")
+  roleId                String         @map("role_id") @db.Uuid
   createdAt             DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt             DateTime       @updatedAt @map("updated_at") @db.Timestamp(6)
+  
+  role                  Role           @relation(fields: [roleId], references: [id], onDelete: Restrict)
   followers             Follow[]       @relation("UserFollowers")
   following             Follow[]       @relation("UserFollowing")
   likes                 Like[]
@@ -87,9 +98,4 @@ model Notification {
   receiver   User     @relation("NotificationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
-}
-
-enum Role {
-  admin
-  user
 }

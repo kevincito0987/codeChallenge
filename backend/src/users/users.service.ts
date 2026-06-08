@@ -59,6 +59,7 @@ export class UsersService {
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
+      select: this.userSelect, // 👈 Usa el select limpio que ya tienes configurado
     });
     if (!user) throw new UnauthorizedException('Usuario no encontrado');
     return user;
