@@ -44,7 +44,7 @@ async function main() {
   }
 
   // --- 2. Crear Cuenta Estándar de Prueba ---
-  const userEmail = 'kevin_test@test.com';
+  const userEmail = 'kenpachi.021zaraki@gmail.com';
   const userPassword = await bcrypt.hash('UserPassword123$', 10);
 
   const existingUser = await prisma.user.findFirst({

@@ -11,6 +11,8 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard'; // 🟢 Verifica que la ruta coincida con tu árbol de directorios
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 // 🟢 Documentación interactiva con Swagger UI
 import {
@@ -71,6 +73,25 @@ export class AuthController {
   })
   refresh(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refresh(refreshTokenDto);
+  }
+
+  @Post('forgot-password')
+  @ApiOperation({
+    summary: 'Solicitar enlace de recuperación de contraseña (Público)',
+  })
+  @ApiResponse({ status: 200, description: 'Correo enviado correctamente.' })
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto);
+  }
+
+  @Post('reset-password')
+  @ApiOperation({
+    summary: 'Restablecer contraseña usando el Token recibido (Público)',
+  })
+  @ApiResponse({ status: 200, description: 'Contraseña cambiada con éxito.' })
+  @ApiResponse({ status: 401, description: 'Token corrupto o expirado.' })
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 
   @UseGuards(JwtAuthGuard)
