@@ -47,4 +47,21 @@ export class NotificationsListener {
       },
     });
   }
+  // ⚡ Escucha los Follows
+  @OnEvent('follow.created')
+  async handleFollowCreatedEvent(payload: {
+    notifierId: string;
+    receiverId: string;
+  }) {
+    if (payload.notifierId === payload.receiverId) return; // Evitar auto-notificaciones
+
+    await this.prisma.notification.create({
+      data: {
+        notifierId: payload.notifierId,
+        receiverId: payload.receiverId,
+        type: 'FOLLOW',
+        entityId: null, // No aplica un ID de tweet para una acción de perfil directo
+      },
+    });
+  }
 }

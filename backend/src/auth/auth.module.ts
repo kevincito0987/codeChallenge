@@ -4,13 +4,17 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MailerModule } from '@nestjs-modules/mailer'; // 🟢 Importamos
+import { PassportModule } from '@nestjs/passport'; // 👈 Importamos PassportModule
+import { JwtStrategy } from './jwt.strategy'; // 👈 Importamos tu estrategia real (ajusta la ruta si varía)
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
     forwardRef(() => UsersModule),
     JwtModule.register({}),
     ConfigModule,
+    // 🔒 Registramos PassportModule por defecto con estrategia jwt
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     // 🟢 Configuración dinámica del Mailer usando las variables del .env
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -32,7 +36,7 @@ import { MailerModule } from '@nestjs-modules/mailer'; // 🟢 Importamos
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
-  exports: [AuthService],
+  providers: [AuthService, JwtStrategy], // 👈 Agregamos JwtStrategy aquí
+  exports: [AuthService, JwtStrategy, PassportModule], // 👈 Exportamos ambos para habilitar el uso global de guards externos
 })
 export class AuthModule {}
