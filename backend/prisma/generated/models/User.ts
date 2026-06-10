@@ -31,9 +31,9 @@ export type UserMinAggregateOutputType = {
   passwordHash: string | null
   bio: string | null
   avatarUrl: string | null
-  roleId: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  role: $Enums.Role | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -43,9 +43,9 @@ export type UserMaxAggregateOutputType = {
   passwordHash: string | null
   bio: string | null
   avatarUrl: string | null
-  roleId: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  role: $Enums.Role | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -55,9 +55,9 @@ export type UserCountAggregateOutputType = {
   passwordHash: number
   bio: number
   avatarUrl: number
-  roleId: number
   createdAt: number
   updatedAt: number
+  role: number
   _all: number
 }
 
@@ -69,9 +69,9 @@ export type UserMinAggregateInputType = {
   passwordHash?: true
   bio?: true
   avatarUrl?: true
-  roleId?: true
   createdAt?: true
   updatedAt?: true
+  role?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -81,9 +81,9 @@ export type UserMaxAggregateInputType = {
   passwordHash?: true
   bio?: true
   avatarUrl?: true
-  roleId?: true
   createdAt?: true
   updatedAt?: true
+  role?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -93,9 +93,9 @@ export type UserCountAggregateInputType = {
   passwordHash?: true
   bio?: true
   avatarUrl?: true
-  roleId?: true
   createdAt?: true
   updatedAt?: true
+  role?: true
   _all?: true
 }
 
@@ -178,9 +178,9 @@ export type UserGroupByOutputType = {
   passwordHash: string
   bio: string | null
   avatarUrl: string | null
-  roleId: string
   createdAt: Date
   updatedAt: Date
+  role: $Enums.Role
   _count: UserCountAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
@@ -211,10 +211,9 @@ export type UserWhereInput = {
   passwordHash?: Prisma.StringFilter<"User"> | string
   bio?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
-  roleId?: Prisma.UuidFilter<"User"> | string
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
+  role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   followers?: Prisma.FollowListRelationFilter
   following?: Prisma.FollowListRelationFilter
   likes?: Prisma.LikeListRelationFilter
@@ -230,10 +229,9 @@ export type UserOrderByWithRelationInput = {
   passwordHash?: Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  roleId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  role?: Prisma.RoleOrderByWithRelationInput
+  role?: Prisma.SortOrder
   followers?: Prisma.FollowOrderByRelationAggregateInput
   following?: Prisma.FollowOrderByRelationAggregateInput
   likes?: Prisma.LikeOrderByRelationAggregateInput
@@ -252,10 +250,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   passwordHash?: Prisma.StringFilter<"User"> | string
   bio?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
-  roleId?: Prisma.UuidFilter<"User"> | string
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
+  role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   followers?: Prisma.FollowListRelationFilter
   following?: Prisma.FollowListRelationFilter
   likes?: Prisma.LikeListRelationFilter
@@ -271,9 +268,9 @@ export type UserOrderByWithAggregationInput = {
   passwordHash?: Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  roleId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  role?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
@@ -289,9 +286,9 @@ export type UserScalarWhereWithAggregatesInput = {
   passwordHash?: Prisma.StringWithAggregatesFilter<"User"> | string
   bio?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
-  roleId?: Prisma.UuidWithAggregatesFilter<"User"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
+  role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
 }
 
 export type UserCreateInput = {
@@ -303,7 +300,7 @@ export type UserCreateInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  role?: $Enums.Role
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   likes?: Prisma.LikeCreateNestedManyWithoutUserInput
@@ -319,9 +316,9 @@ export type UserUncheckedCreateInput = {
   passwordHash: string
   bio?: string | null
   avatarUrl?: string | null
-  roleId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  role?: $Enums.Role
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   likes?: Prisma.LikeUncheckedCreateNestedManyWithoutUserInput
@@ -339,7 +336,7 @@ export type UserUpdateInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   likes?: Prisma.LikeUpdateManyWithoutUserNestedInput
@@ -355,9 +352,9 @@ export type UserUncheckedUpdateInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   likes?: Prisma.LikeUncheckedUpdateManyWithoutUserNestedInput
@@ -373,9 +370,9 @@ export type UserCreateManyInput = {
   passwordHash: string
   bio?: string | null
   avatarUrl?: string | null
-  roleId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  role?: $Enums.Role
 }
 
 export type UserUpdateManyMutationInput = {
@@ -387,6 +384,7 @@ export type UserUpdateManyMutationInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -396,19 +394,9 @@ export type UserUncheckedUpdateManyInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type UserListRelationFilter = {
-  every?: Prisma.UserWhereInput
-  some?: Prisma.UserWhereInput
-  none?: Prisma.UserWhereInput
-}
-
-export type UserOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -418,9 +406,9 @@ export type UserCountOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
-  roleId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  role?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -430,9 +418,9 @@ export type UserMaxOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
-  roleId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  role?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -442,9 +430,9 @@ export type UserMinOrderByAggregateInput = {
   passwordHash?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
-  roleId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  role?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -452,46 +440,8 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
-export type UserCreateNestedManyWithoutRoleInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutRoleInput, Prisma.UserUncheckedCreateWithoutRoleInput> | Prisma.UserCreateWithoutRoleInput[] | Prisma.UserUncheckedCreateWithoutRoleInput[]
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRoleInput | Prisma.UserCreateOrConnectWithoutRoleInput[]
-  createMany?: Prisma.UserCreateManyRoleInputEnvelope
-  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-}
-
-export type UserUncheckedCreateNestedManyWithoutRoleInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutRoleInput, Prisma.UserUncheckedCreateWithoutRoleInput> | Prisma.UserCreateWithoutRoleInput[] | Prisma.UserUncheckedCreateWithoutRoleInput[]
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRoleInput | Prisma.UserCreateOrConnectWithoutRoleInput[]
-  createMany?: Prisma.UserCreateManyRoleInputEnvelope
-  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-}
-
-export type UserUpdateManyWithoutRoleNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutRoleInput, Prisma.UserUncheckedCreateWithoutRoleInput> | Prisma.UserCreateWithoutRoleInput[] | Prisma.UserUncheckedCreateWithoutRoleInput[]
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRoleInput | Prisma.UserCreateOrConnectWithoutRoleInput[]
-  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutRoleInput | Prisma.UserUpsertWithWhereUniqueWithoutRoleInput[]
-  createMany?: Prisma.UserCreateManyRoleInputEnvelope
-  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  update?: Prisma.UserUpdateWithWhereUniqueWithoutRoleInput | Prisma.UserUpdateWithWhereUniqueWithoutRoleInput[]
-  updateMany?: Prisma.UserUpdateManyWithWhereWithoutRoleInput | Prisma.UserUpdateManyWithWhereWithoutRoleInput[]
-  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-}
-
-export type UserUncheckedUpdateManyWithoutRoleNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutRoleInput, Prisma.UserUncheckedCreateWithoutRoleInput> | Prisma.UserCreateWithoutRoleInput[] | Prisma.UserUncheckedCreateWithoutRoleInput[]
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRoleInput | Prisma.UserCreateOrConnectWithoutRoleInput[]
-  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutRoleInput | Prisma.UserUpsertWithWhereUniqueWithoutRoleInput[]
-  createMany?: Prisma.UserCreateManyRoleInputEnvelope
-  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  update?: Prisma.UserUpdateWithWhereUniqueWithoutRoleInput | Prisma.UserUpdateWithWhereUniqueWithoutRoleInput[]
-  updateMany?: Prisma.UserUpdateManyWithWhereWithoutRoleInput | Prisma.UserUpdateManyWithWhereWithoutRoleInput[]
-  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+export type StringFieldUpdateOperationsInput = {
+  set?: string
 }
 
 export type NullableStringFieldUpdateOperationsInput = {
@@ -500,6 +450,10 @@ export type NullableStringFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type EnumRoleFieldUpdateOperationsInput = {
+  set?: $Enums.Role
 }
 
 export type UserCreateNestedOneWithoutTweetsInput = {
@@ -586,81 +540,6 @@ export type UserUpdateOneRequiredWithoutNotificationsReceivedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsReceivedInput, Prisma.UserUpdateWithoutNotificationsReceivedInput>, Prisma.UserUncheckedUpdateWithoutNotificationsReceivedInput>
 }
 
-export type UserCreateWithoutRoleInput = {
-  id?: string
-  username: string
-  email: string
-  passwordHash: string
-  bio?: string | null
-  avatarUrl?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput
-  following?: Prisma.FollowCreateNestedManyWithoutFollowingInput
-  likes?: Prisma.LikeCreateNestedManyWithoutUserInput
-  notificationsSent?: Prisma.NotificationCreateNestedManyWithoutNotifierInput
-  notificationsReceived?: Prisma.NotificationCreateNestedManyWithoutReceiverInput
-  tweets?: Prisma.TweetCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutRoleInput = {
-  id?: string
-  username: string
-  email: string
-  passwordHash: string
-  bio?: string | null
-  avatarUrl?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
-  following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
-  likes?: Prisma.LikeUncheckedCreateNestedManyWithoutUserInput
-  notificationsSent?: Prisma.NotificationUncheckedCreateNestedManyWithoutNotifierInput
-  notificationsReceived?: Prisma.NotificationUncheckedCreateNestedManyWithoutReceiverInput
-  tweets?: Prisma.TweetUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutRoleInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutRoleInput, Prisma.UserUncheckedCreateWithoutRoleInput>
-}
-
-export type UserCreateManyRoleInputEnvelope = {
-  data: Prisma.UserCreateManyRoleInput | Prisma.UserCreateManyRoleInput[]
-  skipDuplicates?: boolean
-}
-
-export type UserUpsertWithWhereUniqueWithoutRoleInput = {
-  where: Prisma.UserWhereUniqueInput
-  update: Prisma.XOR<Prisma.UserUpdateWithoutRoleInput, Prisma.UserUncheckedUpdateWithoutRoleInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutRoleInput, Prisma.UserUncheckedCreateWithoutRoleInput>
-}
-
-export type UserUpdateWithWhereUniqueWithoutRoleInput = {
-  where: Prisma.UserWhereUniqueInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutRoleInput, Prisma.UserUncheckedUpdateWithoutRoleInput>
-}
-
-export type UserUpdateManyWithWhereWithoutRoleInput = {
-  where: Prisma.UserScalarWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutRoleInput>
-}
-
-export type UserScalarWhereInput = {
-  AND?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-  OR?: Prisma.UserScalarWhereInput[]
-  NOT?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-  id?: Prisma.UuidFilter<"User"> | string
-  username?: Prisma.StringFilter<"User"> | string
-  email?: Prisma.StringFilter<"User"> | string
-  passwordHash?: Prisma.StringFilter<"User"> | string
-  bio?: Prisma.StringNullableFilter<"User"> | string | null
-  avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
-  roleId?: Prisma.UuidFilter<"User"> | string
-  createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-}
-
 export type UserCreateWithoutTweetsInput = {
   id?: string
   username: string
@@ -670,7 +549,7 @@ export type UserCreateWithoutTweetsInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  role?: $Enums.Role
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   likes?: Prisma.LikeCreateNestedManyWithoutUserInput
@@ -685,9 +564,9 @@ export type UserUncheckedCreateWithoutTweetsInput = {
   passwordHash: string
   bio?: string | null
   avatarUrl?: string | null
-  roleId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  role?: $Enums.Role
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   likes?: Prisma.LikeUncheckedCreateNestedManyWithoutUserInput
@@ -720,7 +599,7 @@ export type UserUpdateWithoutTweetsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   likes?: Prisma.LikeUpdateManyWithoutUserNestedInput
@@ -735,9 +614,9 @@ export type UserUncheckedUpdateWithoutTweetsInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   likes?: Prisma.LikeUncheckedUpdateManyWithoutUserNestedInput
@@ -754,7 +633,7 @@ export type UserCreateWithoutFollowersInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  role?: $Enums.Role
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   likes?: Prisma.LikeCreateNestedManyWithoutUserInput
   notificationsSent?: Prisma.NotificationCreateNestedManyWithoutNotifierInput
@@ -769,9 +648,9 @@ export type UserUncheckedCreateWithoutFollowersInput = {
   passwordHash: string
   bio?: string | null
   avatarUrl?: string | null
-  roleId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  role?: $Enums.Role
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   likes?: Prisma.LikeUncheckedCreateNestedManyWithoutUserInput
   notificationsSent?: Prisma.NotificationUncheckedCreateNestedManyWithoutNotifierInput
@@ -793,7 +672,7 @@ export type UserCreateWithoutFollowingInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  role?: $Enums.Role
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   likes?: Prisma.LikeCreateNestedManyWithoutUserInput
   notificationsSent?: Prisma.NotificationCreateNestedManyWithoutNotifierInput
@@ -808,9 +687,9 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   passwordHash: string
   bio?: string | null
   avatarUrl?: string | null
-  roleId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  role?: $Enums.Role
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   likes?: Prisma.LikeUncheckedCreateNestedManyWithoutUserInput
   notificationsSent?: Prisma.NotificationUncheckedCreateNestedManyWithoutNotifierInput
@@ -843,7 +722,7 @@ export type UserUpdateWithoutFollowersInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   likes?: Prisma.LikeUpdateManyWithoutUserNestedInput
   notificationsSent?: Prisma.NotificationUpdateManyWithoutNotifierNestedInput
@@ -858,9 +737,9 @@ export type UserUncheckedUpdateWithoutFollowersInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   likes?: Prisma.LikeUncheckedUpdateManyWithoutUserNestedInput
   notificationsSent?: Prisma.NotificationUncheckedUpdateManyWithoutNotifierNestedInput
@@ -888,7 +767,7 @@ export type UserUpdateWithoutFollowingInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   likes?: Prisma.LikeUpdateManyWithoutUserNestedInput
   notificationsSent?: Prisma.NotificationUpdateManyWithoutNotifierNestedInput
@@ -903,9 +782,9 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   likes?: Prisma.LikeUncheckedUpdateManyWithoutUserNestedInput
   notificationsSent?: Prisma.NotificationUncheckedUpdateManyWithoutNotifierNestedInput
@@ -922,7 +801,7 @@ export type UserCreateWithoutLikesInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  role?: $Enums.Role
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   notificationsSent?: Prisma.NotificationCreateNestedManyWithoutNotifierInput
@@ -937,9 +816,9 @@ export type UserUncheckedCreateWithoutLikesInput = {
   passwordHash: string
   bio?: string | null
   avatarUrl?: string | null
-  roleId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  role?: $Enums.Role
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   notificationsSent?: Prisma.NotificationUncheckedCreateNestedManyWithoutNotifierInput
@@ -972,7 +851,7 @@ export type UserUpdateWithoutLikesInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   notificationsSent?: Prisma.NotificationUpdateManyWithoutNotifierNestedInput
@@ -987,9 +866,9 @@ export type UserUncheckedUpdateWithoutLikesInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   notificationsSent?: Prisma.NotificationUncheckedUpdateManyWithoutNotifierNestedInput
@@ -1006,7 +885,7 @@ export type UserCreateWithoutNotificationsSentInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  role?: $Enums.Role
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   likes?: Prisma.LikeCreateNestedManyWithoutUserInput
@@ -1021,9 +900,9 @@ export type UserUncheckedCreateWithoutNotificationsSentInput = {
   passwordHash: string
   bio?: string | null
   avatarUrl?: string | null
-  roleId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  role?: $Enums.Role
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   likes?: Prisma.LikeUncheckedCreateNestedManyWithoutUserInput
@@ -1045,7 +924,7 @@ export type UserCreateWithoutNotificationsReceivedInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  role?: $Enums.Role
   followers?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   likes?: Prisma.LikeCreateNestedManyWithoutUserInput
@@ -1060,9 +939,9 @@ export type UserUncheckedCreateWithoutNotificationsReceivedInput = {
   passwordHash: string
   bio?: string | null
   avatarUrl?: string | null
-  roleId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  role?: $Enums.Role
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   likes?: Prisma.LikeUncheckedCreateNestedManyWithoutUserInput
@@ -1095,7 +974,7 @@ export type UserUpdateWithoutNotificationsSentInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   likes?: Prisma.LikeUpdateManyWithoutUserNestedInput
@@ -1110,9 +989,9 @@ export type UserUncheckedUpdateWithoutNotificationsSentInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   likes?: Prisma.LikeUncheckedUpdateManyWithoutUserNestedInput
@@ -1140,7 +1019,7 @@ export type UserUpdateWithoutNotificationsReceivedInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   likes?: Prisma.LikeUpdateManyWithoutUserNestedInput
@@ -1155,70 +1034,14 @@ export type UserUncheckedUpdateWithoutNotificationsReceivedInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   likes?: Prisma.LikeUncheckedUpdateManyWithoutUserNestedInput
   notificationsSent?: Prisma.NotificationUncheckedUpdateManyWithoutNotifierNestedInput
   tweets?: Prisma.TweetUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateManyRoleInput = {
-  id?: string
-  username: string
-  email: string
-  passwordHash: string
-  bio?: string | null
-  avatarUrl?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type UserUpdateWithoutRoleInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  followers?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
-  following?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
-  likes?: Prisma.LikeUpdateManyWithoutUserNestedInput
-  notificationsSent?: Prisma.NotificationUpdateManyWithoutNotifierNestedInput
-  notificationsReceived?: Prisma.NotificationUpdateManyWithoutReceiverNestedInput
-  tweets?: Prisma.TweetUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutRoleInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
-  following?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
-  likes?: Prisma.LikeUncheckedUpdateManyWithoutUserNestedInput
-  notificationsSent?: Prisma.NotificationUncheckedUpdateManyWithoutNotifierNestedInput
-  notificationsReceived?: Prisma.NotificationUncheckedUpdateManyWithoutReceiverNestedInput
-  tweets?: Prisma.TweetUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateManyWithoutRoleInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
-  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1304,10 +1127,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   passwordHash?: boolean
   bio?: boolean
   avatarUrl?: boolean
-  roleId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  role?: boolean
   followers?: boolean | Prisma.User$followersArgs<ExtArgs>
   following?: boolean | Prisma.User$followingArgs<ExtArgs>
   likes?: boolean | Prisma.User$likesArgs<ExtArgs>
@@ -1324,10 +1146,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   passwordHash?: boolean
   bio?: boolean
   avatarUrl?: boolean
-  roleId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  role?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1337,10 +1158,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   passwordHash?: boolean
   bio?: boolean
   avatarUrl?: boolean
-  roleId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  role?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -1350,14 +1170,13 @@ export type UserSelectScalar = {
   passwordHash?: boolean
   bio?: boolean
   avatarUrl?: boolean
-  roleId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  role?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "email" | "passwordHash" | "bio" | "avatarUrl" | "roleId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "email" | "passwordHash" | "bio" | "avatarUrl" | "createdAt" | "updatedAt" | "role", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   followers?: boolean | Prisma.User$followersArgs<ExtArgs>
   following?: boolean | Prisma.User$followingArgs<ExtArgs>
   likes?: boolean | Prisma.User$likesArgs<ExtArgs>
@@ -1366,17 +1185,12 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   tweets?: boolean | Prisma.User$tweetsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
-}
-export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
-}
+export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
-    role: Prisma.$RolePayload<ExtArgs>
     followers: Prisma.$FollowPayload<ExtArgs>[]
     following: Prisma.$FollowPayload<ExtArgs>[]
     likes: Prisma.$LikePayload<ExtArgs>[]
@@ -1391,9 +1205,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     passwordHash: string
     bio: string | null
     avatarUrl: string | null
-    roleId: string
     createdAt: Date
     updatedAt: Date
+    role: $Enums.Role
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -1788,7 +1602,6 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  role<T extends Prisma.RoleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RoleDefaultArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   followers<T extends Prisma.User$followersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$followersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FollowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   following<T extends Prisma.User$followingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$followingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FollowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   likes<T extends Prisma.User$likesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$likesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LikePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1830,9 +1643,9 @@ export interface UserFieldRefs {
   readonly passwordHash: Prisma.FieldRef<"User", 'String'>
   readonly bio: Prisma.FieldRef<"User", 'String'>
   readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
-  readonly roleId: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly role: Prisma.FieldRef<"User", 'Role'>
 }
     
 
@@ -2087,10 +1900,6 @@ export type UserCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    */
   data: Prisma.UserCreateManyInput | Prisma.UserCreateManyInput[]
   skipDuplicates?: boolean
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2161,10 +1970,6 @@ export type UserUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many Users to update.
    */
   limit?: number
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

@@ -5,23 +5,25 @@ import {
   forwardRef,
   Inject,
   ForbiddenException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateUserBaseDto } from './dto/create-user.dto';
 import { AuthService } from '../auth/auth.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserAdminDto } from './dto/update-user-admin.dto'; // 🟢 Importamos el DTO de Admin
 import * as bcrypt from 'bcrypt';
+import { Role } from '../../prisma/generated/client'; // 🟢 Importamos tu Enum real desde el cliente aislado
 
 @Injectable()
 export class UsersService {
-  // Mapeado exactamente a tus columnas reales sin el campo 'role'
+  // 🟢 Mapeo de salida limpio para no exponer los hashes de contraseñas por accidente
   private readonly userSelect = {
     id: true,
     username: true,
     email: true,
     bio: true,
     avatarUrl: true,
+    role: true,
     createdAt: true,
     updatedAt: true,
   };
@@ -32,18 +34,43 @@ export class UsersService {
     private readonly authService: AuthService,
   ) {}
 
-  async findAll(query: { page?: number; limit?: number }) {
-    const { page = 1, limit = 10 } = query;
+  // 🟢 Reemplaza el método findAll en tu src/users/users.service.ts
+  async findAll(query: {
+    page?: number;
+    limit?: number;
+    role?: string;
+    search?: string;
+  }) {
+    const { page = 1, limit = 10, role, search } = query;
     const skip = (Number(page) - 1) * Number(limit);
 
+    // 🔍 Construimos el filtro de búsqueda dinámica
+    const whereConditions: any = {};
+
+    if (role) {
+      whereConditions.role = role as Role;
+    }
+
+    if (search) {
+      whereConditions.OR = [
+        { username: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { bio: { contains: search, mode: 'insensitive' } }, // Por si buscan palabras clave en las bios
+      ];
+    }
+
+    // Ejecutamos consultas paralelas nativas
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
+        where: whereConditions,
         skip,
         take: Number(limit),
         orderBy: { createdAt: 'desc' },
         select: this.userSelect,
       }),
-      this.prisma.user.count(),
+      this.prisma.user.count({
+        where: whereConditions,
+      }),
     ]);
 
     return {
@@ -59,12 +86,13 @@ export class UsersService {
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      select: this.userSelect, // 👈 Usa el select limpio que ya tienes configurado
+      select: this.userSelect,
     });
-    if (!user) throw new UnauthorizedException('Usuario no encontrado');
+    if (!user) throw new NotFoundException('Usuario no encontrado');
     return user;
   }
 
+  // Método directo ocupado por la estrategia JWT y Auth para validaciones internas
   async findById(id: string) {
     return this.prisma.user.findUnique({
       where: { id },
@@ -74,75 +102,62 @@ export class UsersService {
   async findOneSecure(idToFind: string, currentUser: any) {
     const user = await this.prisma.user.findUnique({
       where: { id: idToFind },
+      select: this.userSelect,
     });
 
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
     let hasAccess = false;
     if (currentUser.id === idToFind) hasAccess = true;
-    if (currentUser.role === 'admin' || currentUser.role === 'ADMIN')
-      hasAccess = true;
+    if (currentUser.role === 'admin') hasAccess = true;
 
     if (!hasAccess) {
       throw new ForbiddenException('No tienes permiso para ver este perfil');
     }
 
-    const { passwordHash, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return user;
   }
 
-  // 🟢 MÉTODO RESTAURADO: Buscador por correo para los servicios de autenticación y estrategia
   async findOneByEmail(email: string) {
     return this.prisma.user.findFirst({
       where: { email },
     });
   }
 
-  async create(data: {
-    email: string;
-    passwordHash: string;
-    username: string;
-    bio: string | null;
-    avatarUrl: string;
-    role?: string;
-  }) {
-    const userExists = await this.prisma.user.findUnique({
-      where: { email: data.email },
-    });
-    if (userExists) throw new ConflictException('El correo ya existe');
-
-    const { role, ...prismaData } = data;
-
-    return this.prisma.user.create({
-      data: prismaData,
-    });
-  }
-
-  async createWithRole(dto: CreateUserBaseDto, role: string) {
+  // Método invocado desde el AuthService durante el registro público
+  // 🟢 Cambia esto en tu src/users/users.service.ts
+  async create(
+    data: Omit<CreateUserBaseDto, 'password'> & {
+      passwordHash: string;
+      avatarUrl: string;
+      role: Role;
+    },
+  ) {
     const userExists = await this.prisma.user.findFirst({
       where: {
-        OR: [{ email: dto.email }, { username: dto.username }],
+        OR: [{ email: data.email }, { username: data.username }],
       },
     });
-    if (userExists)
-      throw new ConflictException('El correo o username ya están en uso');
-
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    if (userExists) {
+      throw new ConflictException(
+        'El correo o el nombre de usuario ya están en uso',
+      );
+    }
 
     return this.prisma.user.create({
       data: {
-        email: dto.email,
-        username: dto.username,
-        passwordHash: hashedPassword,
-        bio: dto.bio || null,
-        avatarUrl:
-          dto.avatarUrl ||
-          `https://api.dicebear.com/7.x/bottts/svg?seed=${dto.username}`,
+        email: data.email,
+        username: data.username,
+        passwordHash: data.passwordHash,
+        bio: data.bio || null,
+        avatarUrl: data.avatarUrl,
+        role: data.role,
       },
       select: this.userSelect,
     });
   }
 
+  // 🟢 1. Actualización de perfil común por parte del propio usuario (No altera roles)
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException(`Usuario no encontrado`);
@@ -161,20 +176,16 @@ export class UsersService {
     });
   }
 
-  async updateMe(id: string, updateUserDto: UpdateUserDto) {
+  // 👑 2. Método exclusivo de administración para cambiar roles de forma segura
+  async updateRole(id: string, updateUserAdminDto: UpdateUserAdminDto) {
     const user = await this.prisma.user.findUnique({ where: { id } });
-    if (!user) throw new NotFoundException(`Usuario no encontrado`);
-
-    const { password, ...dataToUpdate } = updateUserDto;
-    const data: any = { ...dataToUpdate };
-
-    if (password) {
-      data.passwordHash = await bcrypt.hash(password, 10);
-    }
+    if (!user) throw new NotFoundException('Usuario no encontrado');
 
     return this.prisma.user.update({
       where: { id },
-      data,
+      data: {
+        role: updateUserAdminDto.role,
+      },
       select: this.userSelect,
     });
   }
@@ -183,7 +194,8 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
-    return await this.prisma.user.delete({
+    // Usamos borrado físico directo ya que tu esquema maneja las relaciones en cascada
+    return this.prisma.user.delete({
       where: { id },
       select: this.userSelect,
     });

@@ -5,18 +5,19 @@ import {
   forwardRef,
   ConflictException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from '../users/users.service'; // Asegúrate de que apunte directo al archivo y no a un index/barril
+import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
+// 🟢 Importamos el Enum Role real desde tu cliente aislado de Prisma
+import { Role } from '../../prisma/generated/client';
 
 @Injectable()
 export class AuthService {
   constructor(
-    // 🟢 Forzamos el tipado correcto aquí con 'as any' o asegurando la instancia limpia
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -26,8 +27,8 @@ export class AuthService {
   async register(registerDto: RegisterDto) {
     const { email, password, username, bio } = registerDto;
 
-    // 🟢 Si sigue molestando el linter, puedes usar (this.usersService as any).findOneByEmail(email)
-    const existingUser = await (this.usersService as any).findOneByEmail(email);
+    // Buscamos si el correo ya existe usando los métodos tipados de tu servicio de usuarios
+    const existingUser = await this.usersService.findOneByEmail(email);
     if (existingUser) {
       throw new ConflictException('El correo ya está registrado');
     }
@@ -35,18 +36,19 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
     const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`;
 
-    return (this.usersService as any).create({
+    // 🟢 Creamos el usuario enviando las propiedades limpias compatibles con el Omit<CreateUserBaseDto, 'password'>
+    return this.usersService.create({
       email,
       passwordHash: hashedPassword,
       username,
-      bio: bio || null,
+      bio, // Pasa como string | undefined de forma nativa respetando TypeScript
       avatarUrl: defaultAvatar,
+      role: Role.user, // Asignación tipada y segura
     });
   }
 
   async login(loginDto: LoginDto) {
-    // 🟢 Aplicamos el casteo temporal '(this.usersService as any)' para saltarnos el bloqueo del forwardRef en TS
-    const user = await (this.usersService as any).findOneByEmail(loginDto.email);
+    const user = await this.usersService.findOneByEmail(loginDto.email);
 
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
@@ -61,51 +63,77 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      role: 'USER', 
-    };
-
+    // 🟢 Pasamos el objeto directamente en cada firma para que TypeScript herede el Overload correcto
     return {
-      accessToken: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<any>('JWT_ACCESS_TTL') || '15m',
-      }),
-      refreshToken: this.jwtService.sign(payload, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<any>('JWT_REFRESH_TTL') || '7d',
-      }),
+      accessToken: this.jwtService.sign(
+        {
+          sub: user.id,
+          email: user.email,
+          username: user.username,
+          role: String(user.role),
+        },
+        {
+          secret: this.configService.get<string>('JWT_SECRET'),
+          expiresIn: this.configService.get<string>('JWT_ACCESS_TTL') || '15m',
+        } as JwtSignOptions, // 👈 Forzamos el contrato de opciones oficial para evitar el error TS2769
+      ),
+      refreshToken: this.jwtService.sign(
+        {
+          sub: user.id,
+          email: user.email,
+          username: user.username,
+          role: String(user.role),
+        },
+        {
+          secret: this.configService.get<string>('JWT_SECRET'),
+          expiresIn: this.configService.get<string>('JWT_REFRESH_TTL') || '7d',
+        } as JwtSignOptions,
+      ),
     };
   }
 
   async refresh(refreshTokenDto: RefreshTokenDto) {
     try {
+      // Verificamos el token usando el secreto global
       const payload = this.jwtService.verify(refreshTokenDto.refreshToken, {
-        secret: this.configService.get<string>('JWT_SECRET') as string,
+        secret: this.configService.get<string>('JWT_SECRET'),
       });
 
-      const user = await (this.usersService as any).findById(payload.sub);
+      // Buscamos al usuario por su ID (sub)
+      const user = await this.usersService.findById(payload.sub);
 
       if (!user) {
         throw new UnauthorizedException('Usuario no encontrado');
       }
 
-      const newPayload = {
-        sub: user.id,
-        email: user.email,
-        role: 'USER',
-      };
-
+      // 🟢 Aplicamos la misma estructura directa aquí para evitar conflictos de sobrecarga
       return {
-        accessToken: this.jwtService.sign(newPayload, {
-          secret: this.configService.get<string>('JWT_SECRET'),
-          expiresIn: this.configService.get<any>('JWT_ACCESS_TTL') || '15m',
-        }),
-        refreshToken: this.jwtService.sign(newPayload, {
-          secret: this.configService.get<string>('JWT_SECRET'),
-          expiresIn: this.configService.get<any>('JWT_REFRESH_TTL') || '7d',
-        }),
+        accessToken: this.jwtService.sign(
+          {
+            sub: user.id,
+            email: user.email,
+            username: user.username,
+            role: String(user.role),
+          },
+          {
+            secret: this.configService.get<string>('JWT_SECRET'),
+            expiresIn:
+              this.configService.get<string>('JWT_ACCESS_TTL') || '15m',
+          } as JwtSignOptions,
+        ),
+        refreshToken: this.jwtService.sign(
+          {
+            sub: user.id,
+            email: user.email,
+            username: user.username,
+            role: String(user.role),
+          },
+          {
+            secret: this.configService.get<string>('JWT_SECRET'),
+            expiresIn:
+              this.configService.get<string>('JWT_REFRESH_TTL') || '7d',
+          } as JwtSignOptions,
+        ),
       };
     } catch (error) {
       throw new UnauthorizedException('Refresh token inválido o expirado');

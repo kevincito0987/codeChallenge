@@ -1,8 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
   Param,
   Delete,
   Patch,
@@ -10,14 +8,16 @@ import {
   Req,
   UnauthorizedException,
   Query,
+  Body,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserBaseDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserAdminDto } from './dto/update-user-admin.dto'; // 🟢 DTO dedicado para mutación de roles
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 
+// 🟢 Documentación interactiva con Swagger UI
 import {
   ApiTags,
   ApiOperation,
@@ -27,45 +27,41 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 
-@ApiTags('Users (Gestión de Perfiles)')
-@ApiBearerAuth('JWT-auth')
+@ApiTags('Users (Usuarios y Roles)') // 🏷️ Agrupa todas las operaciones de usuarios en la interfaz de Swagger
+@ApiBearerAuth('JWT-auth') // 🔒 Candado de autorización global para todo el controlador
 @Controller('users')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard) // 🛡️ Protección perimetral para todo el recurso
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
-    summary: 'Obtener mi propio perfil de Twitter',
+    summary: 'Obtener mi propio perfil',
     description:
-      'Recupera la información del usuario autenticado a partir de los datos decodificados de su Access Token.',
+      'Recupera la información detallada del usuario actual extraída del payload del Token JWT.',
   })
   @ApiResponse({ status: 200, description: 'Perfil retornado con éxito.' })
-  @ApiResponse({ status: 401, description: 'Token ausente o inválido.' })
+  @ApiResponse({
+    status: 401,
+    description: 'Token ausente, inválido o expirado.',
+  })
   async getMe(@Req() req: any) {
-    // 1. Buscamos el usuario en la base de datos (ya viene sin passwordHash gracias al select del servicio)
-    const user = await this.usersService.findOne(req.user.id);
-
-    // 2. Retornamos el perfil inyectando directamente el rol desde el token JWT
-    return {
-      ...user,
-      role: req.user.role || 'USER',
-    };
+    return this.usersService.findOne(req.user.id);
   }
 
   @Get()
-  @Roles('admin')
+  @Roles('admin', 'user') // 🛡️ Permite que tanto Admins como Users busquen cuentas en el feed global
   @ApiOperation({
-    summary: 'Listar todos los usuarios registrados (Solo Admin)',
+    summary: 'Listar y buscar usuarios',
     description:
-      'Permite auditar las cuentas existentes en el ecosistema con paginación y filtros por rol.',
+      'Visualiza el universo de usuarios con soporte para paginación, filtrado por rol y búsqueda exacta/parcial por username, email o bio.',
   })
   @ApiQuery({
     name: 'page',
     required: false,
     type: Number,
-    description: 'Número de página',
+    description: 'Número de página para la paginación',
   })
   @ApiQuery({
     name: 'limit',
@@ -77,81 +73,105 @@ export class UsersController {
     name: 'role',
     required: false,
     type: String,
-    description: 'Filtrar por rol exacto (admin, user)',
+    description: 'Filtrar usuarios por rol exacto (admin, user)',
   })
-  @ApiResponse({ status: 200, description: 'Listado devuelto con éxito.' })
-  findAll(@Query() query: { page?: number; limit?: number; role?: string }) {
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description:
+      'Término de búsqueda parcial (username, email o contenido de la bio)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Listado o resultado de búsqueda devuelto con éxito.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'No tienes los roles requeridos para consultar este recurso.',
+  })
+  findAll(
+    @Query()
+    query: {
+      page?: number;
+      limit?: number;
+      role?: string;
+      search?: string;
+    },
+  ) {
     return this.usersService.findAll(query);
   }
 
   @Get(':id')
-  @Roles('admin', 'user')
+  @Roles('admin', 'user') // 🛡️ Roles vigentes acordes al nuevo Enum de Prisma
   @ApiOperation({
-    summary: 'Obtener un perfil por ID (Acceso Seguro)',
+    summary: 'Obtener usuario por ID (Acceso Seguro)',
     description:
-      'Recupera los datos públicos o privados de un usuario validando permisos de autoría o rol de administrador.',
+      'Recupera un usuario específico aplicando la regla de negocio: un usuario común solo puede consultarse a sí mismo, a menos que sea Admin.',
   })
-  @ApiParam({ name: 'id', description: 'ID único del usuario' })
+  @ApiParam({ name: 'id', description: 'ID único (UUID) del usuario a buscar' })
   @ApiResponse({ status: 200, description: 'Usuario encontrado con éxito.' })
+  @ApiResponse({
+    status: 403,
+    description: 'No tienes permiso para ver el perfil de otro usuario.',
+  })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado.' })
   findOne(@Param('id') id: string, @Req() req: any) {
     return this.usersService.findOneSecure(id, req.user);
   }
 
-  @Post('user')
-  @Roles('admin')
-  @ApiOperation({
-    summary: 'Registrar una cuenta estándar con rol de User (Solo Admin)',
-  })
-  @ApiResponse({ status: 201, description: 'Usuario creado con éxito.' })
-  createUser(@Body() dto: CreateUserBaseDto) {
-    return this.usersService.createWithRole(dto, 'user');
-  }
-
-  @Post('admin')
-  @Roles('admin')
-  @ApiOperation({
-    summary:
-      'Registrar una cuenta con privilegios de Administrador (Solo Admin)',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Administrador registrado con éxito.',
-  })
-  createAdmin(@Body() dto: CreateUserBaseDto) {
-    return this.usersService.createWithRole(dto, 'admin');
-  }
-
   @Patch('me')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
-    summary: 'Actualizar mis propios datos de cuenta (Bio, Avatar, Username)',
+    summary: 'Actualizar mis propios datos de perfil',
+    description:
+      'Permite modificar propiedades personales (username, bio, avatarUrl, email, password). No admite alteración de roles.',
   })
-  @ApiResponse({ status: 200, description: 'Perfil modificado exitosamente.' })
+  @ApiResponse({ status: 200, description: 'Perfil actualizado exitosamente.' })
+  @ApiResponse({ status: 401, description: 'No autorizado o token corrupto.' })
   async updateMe(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
     if (!req.user || !req.user.id) {
-      throw new UnauthorizedException('El token no contiene un ID válido');
+      throw new UnauthorizedException(
+        'El token no contiene un ID de usuario válido',
+      );
     }
-    return this.usersService.updateMe(req.user.id, updateUserDto);
+    return this.usersService.update(req.user.id, updateUserDto);
   }
 
-  @Patch(':id')
-  @Roles('admin')
+  @Patch(':id/role')
+  @Roles('admin') // 👑 Endpoint exclusivo para Administradores
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Modificar datos de cualquier cuenta (Solo Admin)' })
-  @ApiParam({ name: 'id', description: 'ID del usuario a modificar' })
-  async updateAnyUser(
+  @ApiOperation({
+    summary: 'Actualizar el rol de cualquier usuario (Solo Admin)',
+    description:
+      'Permite al Administrador mutar privilegios de cuentas de manera aislada utilizando validaciones estrictas de Enum.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID único (UUID) del usuario a modificar',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Rol de usuario modificado con éxito.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'El rol provisto no pertenece al Enum válido.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Permisos de administración insuficientes.',
+  })
+  async updateAnyUserRole(
     @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateUserAdminDto: UpdateUserAdminDto,
   ) {
-    return this.usersService.update(id, updateUserDto);
+    return this.usersService.updateRole(id, updateUserAdminDto);
   }
 
   @Delete('me')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: 'Eliminar permanentemente mi propia cuenta de la plataforma',
-  })
+  @ApiOperation({ summary: 'Dar de baja mi propia cuenta (Remoción física)' })
   @ApiResponse({ status: 200, description: 'Cuenta eliminada con éxito.' })
   async deleteMe(@Req() req: any) {
     return this.usersService.remove(req.user.id);
@@ -161,9 +181,21 @@ export class UsersController {
   @Roles('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({
-    summary: 'Eliminar de forma definitiva cualquier cuenta (Solo Admin)',
+    summary: 'Eliminar cualquier usuario del sistema (Solo Admin)',
   })
-  @ApiParam({ name: 'id', description: 'ID del usuario a remover' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID único (UUID) del usuario a remover permanentemente',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Usuario removido físicamente en cascada por el Administrador.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Acceso denegado. Se requieren permisos de nivel admin.',
+  })
   async deleteUser(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
